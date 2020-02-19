@@ -17,3 +17,4 @@ It is a domain public project.
 It package TkinterDnD2 and tkdnd2 into a standard python module 
 
 When the extension is imported in python its location will be automatically added to the Tk search path.
+
