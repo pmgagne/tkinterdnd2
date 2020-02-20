@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-
 '''Python wrapper for the tkdnd tk extension.
+
 The tkdnd extension provides an interface to native, platform specific
 drag and drop mechanisms. Under Unix the drag & drop protocol in use is
 the XDND protocol version 5 (also used by the Qt toolkit, and the KDE and
@@ -21,7 +20,8 @@ Drag and drop for the application can then be enabled by using one of the
 classes TkinterDnD.Tk() or (in case the tix extension shall be used)
 TkinterDnD.TixTk() as application main window instead of a regular
 tkinter.Tk() window. This will add the drag-and-drop specific methods to the
-Tk window and all its descendants.'''
+Tk window and all its descendants.
+'''
 
 try:
     import Tkinter as tkinter
