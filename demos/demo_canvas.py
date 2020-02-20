@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import os
-import TkinterDnD2
+import tkinterdnd2
 try:
     from Tkinter import *
 except ImportError:
     from tkinter import *
 
-root = TkinterDnD2.Tk()
+root = tkinterdnd2.Tk()
 root.withdraw()
 root.title('TkinterDnD Canvas demo')
 root.grid_rowconfigure(1, weight=1, minsize=250)
@@ -83,14 +83,14 @@ def drop_leave(event):
 def drop(event):
     if canvas.dragging:
         # the canvas itself is the drag source
-        return TkinterDnD2.REFUSE_DROP
+        return tkinterdnd2.REFUSE_DROP
     if event.data:
         files = canvas.tk.splitlist(event.data)
         for f in files:
             add_file(f)
     return event.action
 
-canvas.drop_target_register(TkinterDnD2.DND_FILES)
+canvas.drop_target_register(tkinterdnd2.DND_FILES)
 canvas.dnd_bind('<<DropEnter>>', drop_enter)
 canvas.dnd_bind('<<DropPosition>>', drop_position)
 canvas.dnd_bind('<<DropLeave>>', drop_leave)
@@ -106,7 +106,7 @@ def drag_init(event):
         # actually hit an item, but for now we will stick with this
         data = (canvas.filenames[sel],)
         canvas.dragging = True
-        return ((TkinterDnD2.ASK, TkinterDnD2.COPY), (TkinterDnD2.DND_FILES, TkinterDnD2.DND_TEXT), data)
+        return ((tkinterdnd2.ASK, tkinterdnd2.COPY), (tkinterdnd2.DND_FILES, tkinterdnd2.DND_TEXT), data)
     else:
         # don't start a dnd-operation when nothing is selected; the
         # return "break" here is only cosmetical, return "foobar" would
@@ -117,7 +117,7 @@ def drag_end(event):
     # reset the "dragging" flag to enable drops again
     canvas.dragging = False
 
-canvas.drag_source_register(1, TkinterDnD2.DND_FILES)
+canvas.drag_source_register(1, tkinterdnd2.DND_FILES)
 canvas.dnd_bind('<<DragInitCmd>>', drag_init)
 canvas.dnd_bind('<<DragEndCmd>>', drag_end)
 
