@@ -12,6 +12,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/pmgagne/tkinterdnd2",
     packages=setuptools.find_packages(),
+    include_package_data=True,
     package_data={
         # Include tkdnd extension files.
         "tkinterdnd2": ["tkdnd/linux64/*.*", "tkdnd/osx64/*.*", "tkdnd/win64/*.*"],
