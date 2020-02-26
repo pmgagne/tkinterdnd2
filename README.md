@@ -8,15 +8,18 @@ Tkinter native drag and drop support for windows, unix and Mac OSX.
 
 It is a domain public project.
 
-## What is TkInterDnD2
+## What is TkDnD2
 
 [tkDnD2](https://github.com/petasis/tkdnd) is a tcl/Tk extension adding native drag and drop support.
+
 
 ## What this repository is about
 
 It package TkinterDnD2 and tkdnd2 into a standard python module.
 
 When the extension is imported in python its location will be automatically added to the Tk search path.
+
+In this project we use the pre-compiled release from https://github.com/petasis/tkdnd/releases/tag/tkdnd-release-test-v2.9.2 and copy them in tkinterdnd2/tkdnd.
 
 # Installation
 
