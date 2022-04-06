@@ -57,14 +57,6 @@ When the extension is imported in python its location will be automatically adde
 In this project we use the pre-compiled release
 from https://github.com/petasis/tkdnd/releases/tag/tkdnd-release-test-v2.9.2 and copy them in tkinterdnd2/tkdnd.
 
-# Installation
-
-Nothing fancy:
-
-    python setup.py install
-
-You can then import tkinterdnd2 in your project. See examples in folder "demos".
-
 ## pyinstaller
 
 If you want to use pyinstaller, you should use the hook-tkinterdnd2.py file included. Copy it in the base directory of
