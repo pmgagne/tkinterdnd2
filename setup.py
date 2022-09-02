@@ -4,13 +4,13 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="tkinterdnd2-pmgagne", # Replace with your own username
+    name="tkinterdnd2",
     version="0.3.0",
-    author="pmgagne",
+    author="petasis\\pmgagne\\eliav2",
     description="TkinterDnD2 is a python wrapper for George Petasis'' tkDnD Tk extension version 2",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/pmgagne/tkinterdnd2",
+    url="https://github.com/Eliav2/tkinterdnd2",
     packages=setuptools.find_packages(),
     include_package_data=True,
     package_data={
