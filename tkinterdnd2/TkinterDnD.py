@@ -283,6 +283,13 @@ class Tk(tkinter.Tk, DnDWrapper):
     def __init__(self, *args, **kw):
         tkinter.Tk.__init__(self, *args, **kw)
         self.TkdndVersion = _require(self)
+        
+class Frame(tkinter.Frame, DnDWrapper):
+    '''Creates a new instance of a tkinter.Frame() window; all methods of
+    the DnDWrapper class apply to this window and all its descendants.'''
+    def __init__(self, *args, **kw):
+        tkinter.Frame.__init__(self, *args, **kw)
+        self.TkdndVersion = _require(self)
 
 class TixTk(tix.Tk, DnDWrapper):
     '''Creates a new instance of a tix.Tk() window; all methods of the
