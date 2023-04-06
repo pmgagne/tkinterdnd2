@@ -38,13 +38,17 @@ def _require(tkroot):
     try:
         import os.path
         import platform
+        import sys
 
         if platform.system()=="Darwin":
             tkdnd_platform_rep = "osx64"
         elif platform.system()=="Linux":
             tkdnd_platform_rep = "linux64"
         elif platform.system()=="Windows":
+          if sys.maxsize >> 32:
             tkdnd_platform_rep = "win64"
+          else:
+            tkdnd_platform_rep = "win32"
         else:
             raise RuntimeError('Plaform not supported.')
         
