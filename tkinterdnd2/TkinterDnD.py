@@ -29,6 +29,7 @@ try:
 except ImportError:
     import tkinter
     from tkinter import tix
+import struct
 
 TkdndVersion = None
 
@@ -44,7 +45,10 @@ def _require(tkroot):
         elif platform.system()=="Linux":
             tkdnd_platform_rep = "linux64"
         elif platform.system()=="Windows":
-            tkdnd_platform_rep = "win64"
+            if struct.calcsize("P") * 8 == 32:
+                tkdnd_platform_rep = "win32"
+            else:
+                tkdnd_platform_rep = "win64"
         else:
             raise RuntimeError('Plaform not supported.')
         
