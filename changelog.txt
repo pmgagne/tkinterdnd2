@@ -1,0 +1,16 @@
+0.4.2
+    - Fixed an error in hook file due to the omission of a comma. I didn't do enough testing across systems.
+
+0.4.1
+    - Fixed error in hook file which failed to account for new architechures. 
+
+0.4.0
+    - Removed support for Tix. Tix was depreciated in python3.6 and will be removed in python3.13
+    - Updated most tkdnd binaries from 2.9.2 to 2.9.4. ARM binaries are on 2.9.3 and need to be rebuilt (a problem I don't yet have a solution for)
+    - Updated hook.py to only include files for the appropriate platform.
+
+0.3.1
+    - Updates to readme
+
+0.3.0
+    - Original fork 

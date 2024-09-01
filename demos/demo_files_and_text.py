@@ -2,7 +2,7 @@
 
 import os
 import platform
-from TkinterDnD2 import *
+from tkinterdnd2 import *
 try:
     from Tkinter import *
     from ScrolledText import ScrolledText
