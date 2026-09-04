@@ -1,3 +1,16 @@
+0.6.3
+    - Fixed drag-over stalls (sometimes lasting several seconds to a
+      minute) while dragging files/text over a drop target on Linux/X11,
+      most noticeable under XWayland. The XDND position handler was
+      fetching the full dropped-data selection on every pointer motion
+      while hovering, even when nothing used it; it's now only fetched
+      when a bound <<DropEnter>>/<<DropPosition>> binding actually
+      references it, and the result is cached per hovered target instead
+      of being re-fetched on every mouse-move. This also shrinks the
+      window for a state race with drag-leave handling that could
+      intermittently make a drop silently produce no data. Related to
+      issues #16 and #20.
+
 0.6.2
     - Rebuilt the Linux binaries (linux-x64(-tcl9) and linux-arm64(-tcl9)) from
       TkDND 2.10.1 to pick up a fix for a race condition in the X11
