@@ -89,6 +89,8 @@ proc xdnd::HandleXdndEnter { drop_target drag_source typelist time
   variable _pressedkeys
   variable _actionlist
   variable _typelist
+  variable _position_data_target; set _position_data_target {}
+  variable _position_data_cache;  set _position_data_cache  {}
   set _pressedkeys [GetPressedKeys $drop_target]
   set _actionlist  { copy move link ask private }
   set _typelist    $typelist
@@ -101,17 +103,42 @@ proc xdnd::HandleXdndEnter { drop_target drag_source typelist time
 # ----------------------------------------------------------------------------
 #  Command xdnd::HandleXdndPosition
 # ----------------------------------------------------------------------------
+proc xdnd::NeedsPositionData { resolved_target } {
+  foreach event {<<DropEnter>> <<DropPosition>>} {
+    if {[string first %D [bind $resolved_target $event]] >= 0} { return 1 }
+  }
+  return 0
+};# xdnd::NeedsPositionData
+
 proc xdnd::HandleXdndPosition { drop_target rootX rootY time
                                { drag_source {} } { action default } } {
   variable _pressedkeys
   variable _typelist
   variable _last_mouse_root_x; set _last_mouse_root_x $rootX
   variable _last_mouse_root_y; set _last_mouse_root_y $rootY
+  variable _position_data_target
+  variable _position_data_cache
   set _pressedkeys [GetPressedKeys $drop_target]
   #DBG debug "xdnd::HandleXdndPosition: $time"
-  ## Get the dropped data...
-  catch {
-    ::tkdnd::generic::SetDroppedData [GetPositionData $drop_target $_typelist $time]
+  ## The dropped data can't change for the life of a drag, so only pay for
+  ## the (possibly multi-second, per candidate type) selection round-trip
+  ## once per hovered target, and only if a bound <<DropEnter>>/<<DropPosition>>
+  ## script actually uses %D. Doing this unconditionally on every pointer
+  ## motion is what causes drag-over stalls and races with HandleLeave (see
+  ## the snapshot/restore comment in HandleXdndDrop above).
+  foreach {resolved common_drag_source_types common_drop_target_types} \
+    [::tkdnd::generic::FindWindowWithCommonTypes $drop_target $_typelist] {break}
+  if {[string length $resolved] && [NeedsPositionData $resolved]} {
+    if {![info exists _position_data_target] ||
+        $_position_data_target ne $resolved} {
+      set _position_data_target $resolved
+      set _position_data_cache {}
+      catch {set _position_data_cache [GetPositionData $drop_target $_typelist $time]}
+    }
+    ::tkdnd::generic::SetDroppedData $_position_data_cache
+  } else {
+    set _position_data_target {}
+    ::tkdnd::generic::SetDroppedData {}
   }
   ::tkdnd::generic::HandlePosition $drop_target $drag_source \
                                    $_pressedkeys $rootX $rootY $action
@@ -121,6 +148,8 @@ proc xdnd::HandleXdndPosition { drop_target rootX rootY time
 #  Command xdnd::HandleXdndLeave
 # ----------------------------------------------------------------------------
 proc xdnd::HandleXdndLeave { } {
+  variable _position_data_target; set _position_data_target {}
+  variable _position_data_cache;  set _position_data_cache  {}
   #DBG debug "xdnd::HandleXdndLeave"
   ::tkdnd::generic::HandleLeave
 };# xdnd::HandleXdndLeave
