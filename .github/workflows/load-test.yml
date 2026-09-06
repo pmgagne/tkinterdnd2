@@ -1,0 +1,77 @@
+name: Load test
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Coverage notes:
+# - Linux Tcl 9: not testable — actions/setup-python links against system Tcl 8.6
+#   regardless of Python version; paid runners would be needed for Linux arm64.
+# - macOS arm64: actions/setup-python's pre-built Python links against Tcl 8, so
+#   we use Homebrew Python 3.13, which depends on Homebrew's tcl-tk (Tcl 9).
+# - macOS x64: macos-13 runner is no longer available; omitted.
+# - Windows arm64/x86: require paid runners; omitted.
+
+jobs:
+  test:
+    name: ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python-version: "3.12"
+            label: "Linux x64 · Tcl 8 (Python 3.12)"
+
+          - os: windows-latest
+            python-version: "3.12"
+            label: "Windows x64 · Tcl 8 (Python 3.12)"
+
+          - os: windows-latest
+            python-version: "3.13"
+            label: "Windows x64 · Tcl 9 (Python 3.13)"
+
+          - os: macos-latest
+            python-version: "3.13"
+            label: "macOS arm64 · Tcl 9 (Homebrew Python 3.13)"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        if: runner.os != 'macOS'
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Homebrew Python 3.13 with Tcl 9 (macOS)
+        if: runner.os == 'macOS'
+        run: brew install python-tk@3.13
+
+      - name: Install package
+        if: runner.os != 'macOS'
+        run: pip install -e .
+
+      - name: Install package (macOS)
+        if: runner.os == 'macOS'
+        run: python3.13 -m pip install -e . --break-system-packages
+
+      - name: Install Xvfb (Linux only)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update -qq && sudo apt-get install -y xvfb
+
+      - name: Run load tests (Linux)
+        if: runner.os == 'Linux'
+        run: xvfb-run --auto-servernum python -m unittest discover -s tests -v
+
+      - name: Run load tests (macOS)
+        if: runner.os == 'macOS'
+        run: python3.13 -m unittest discover -s tests -v
+
+      - name: Run load tests (Windows)
+        if: runner.os == 'Windows'
+        run: python -m unittest discover -s tests -v

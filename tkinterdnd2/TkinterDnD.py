@@ -10,25 +10,19 @@ Once the TkinterDnD2 package is installed, it is safe to do:
 
 from TkinterDnD2 import *
 
-This will add the classes TkinterDnD.Tk and TkinterDnD.TixTk to the global
+This will add the classes TkinterDnD.Tk to the global
 namespace, plus the following constants:
 PRIVATE, NONE, ASK, COPY, MOVE, LINK, REFUSE_DROP,
 DND_TEXT, DND_FILES, DND_ALL, CF_UNICODETEXT, CF_TEXT, CF_HDROP,
 FileGroupDescriptor, FileGroupDescriptorW
 
 Drag and drop for the application can then be enabled by using one of the
-classes TkinterDnD.Tk() or (in case the tix extension shall be used)
-TkinterDnD.TixTk() as application main window instead of a regular
+classes TkinterDnD.Tk() as application main window instead of a regular
 tkinter.Tk() window. This will add the drag-and-drop specific methods to the
 Tk window and all its descendants.
 '''
 
-try:
-    import Tkinter as tkinter
-    import Tix as tix
-except ImportError:
-    import tkinter
-    from tkinter import tix
+import tkinter
 
 TkdndVersion = None
 
@@ -36,19 +30,46 @@ def _require(tkroot):
     '''Internal function.'''
     global TkdndVersion
     try:
-        import os.path
+        import os
         import platform
 
-        if platform.system()=="Darwin":
-            tkdnd_platform_rep = "osx64"
-        elif platform.system()=="Linux":
-            tkdnd_platform_rep = "linux64"
-        elif platform.system()=="Windows":
-            tkdnd_platform_rep = "win64"
+        # On Windows, platform.machine() returns the identifier of the
+        # *host* architecture, which does not necessarily match the
+        # architecture of the running python process. For example, when
+        # running x86 python under x64 Windows, the return value is AMD64;
+        # when running either x86 or x64 python under arm64 Windows, the
+        # return value is ARM64. The architecture of the running process
+        # can be obtained from the PROCESSOR_ARCHITECTURE environment variable,
+        # which is automatically set by Windows / WOW subsystem.
+        system = platform.system()
+        if system=="Windows":
+            machine = os.environ.get('PROCESSOR_ARCHITECTURE', platform.machine())
+        else:
+            machine = platform.machine()
+
+        if system=="Darwin" and machine=="arm64":
+            tkdnd_platform_rep = "osx-arm64"
+        elif system=="Darwin" and machine=="x86_64":
+            tkdnd_platform_rep = "osx-x64"
+        elif system=="Linux" and machine=="aarch64":
+            tkdnd_platform_rep = "linux-arm64"
+        elif system=="Linux" and machine=="x86_64":
+            tkdnd_platform_rep = "linux-x64"
+        elif system=="Windows" and machine=="ARM64":
+            tkdnd_platform_rep = "win-arm64"
+        elif system=="Windows" and machine=="AMD64":
+            tkdnd_platform_rep = "win-x64"
+        elif system=="Windows" and machine=="x86":
+            tkdnd_platform_rep = "win-x86"
         else:
             raise RuntimeError('Plaform not supported.')
-        
-        module_path = os.path.join(os.path.dirname(__file__), 'tkdnd', tkdnd_platform_rep)
+
+        tcl_major = int(tkroot.tk.call('info', 'tclversion').split('.')[0])
+        if tcl_major >= 9:
+            tcl9_path = os.path.join(os.path.dirname(__file__), 'tkdnd', tkdnd_platform_rep + '-tcl9')
+            module_path = tcl9_path if os.path.isdir(tcl9_path) else os.path.join(os.path.dirname(__file__), 'tkdnd', tkdnd_platform_rep)
+        else:
+            module_path = os.path.join(os.path.dirname(__file__), 'tkdnd', tkdnd_platform_rep)
         tkroot.tk.call('lappend', 'auto_path', module_path)
         TkdndVersion = tkroot.tk.call('package', 'require', 'tkdnd')
     except tkinter.TclError:
@@ -277,6 +298,24 @@ class DnDWrapper:
 ####      themselves and all their descendant widgets:             ####
 #######################################################################
 
+def require(tkroot):
+    """Enable tkdnd drag-and-drop on an existing Tk root.
+
+    Use this when your application uses a GUI framework (e.g. PySimpleGUI,
+    CustomTkinter) that manages its own Tk root and you cannot use
+    TkinterDnD.Tk() as the root window.
+
+    Call this after the framework has created and finalised its window::
+
+        window = sg.Window('Title', layout, finalize=True)
+        TkinterDnD.require(window.TKroot)
+
+    After this call, any widget in the process can be registered as a
+    drop target via widget.drop_target_register() and widget.dnd_bind().
+    """
+    return _require(tkroot)
+
+
 class Tk(tkinter.Tk, DnDWrapper):
     '''Creates a new instance of a tkinter.Tk() window; all methods of the
     DnDWrapper class apply to this window and all its descendants.'''
@@ -284,9 +323,3 @@ class Tk(tkinter.Tk, DnDWrapper):
         tkinter.Tk.__init__(self, *args, **kw)
         self.TkdndVersion = _require(self)
 
-class TixTk(tix.Tk, DnDWrapper):
-    '''Creates a new instance of a tix.Tk() window; all methods of the
-    DnDWrapper class apply to this window and all its descendants.'''
-    def __init__(self, *args, **kw):
-        tix.Tk.__init__(self, *args, **kw)
-        self.TkdndVersion = _require(self)

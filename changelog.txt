@@ -1,0 +1,71 @@
+0.6.3
+    - Fixed drag-over stalls (sometimes lasting several seconds to a
+      minute) while dragging files/text over a drop target on Linux/X11,
+      most noticeable under XWayland. The XDND position handler was
+      fetching the full dropped-data selection on every pointer motion
+      while hovering, even when nothing used it; it's now only fetched
+      when a bound <<DropEnter>>/<<DropPosition>> binding actually
+      references it, and the result is cached per hovered target instead
+      of being re-fetched on every mouse-move. This also shrinks the
+      window for a state race with drag-leave handling that could
+      intermittently make a drop silently produce no data. Related to
+      issues #16 and #20.
+
+0.6.2
+    - Rebuilt the Linux binaries (linux-x64(-tcl9) and linux-arm64(-tcl9)) from
+      TkDND 2.10.1 to pick up a fix for a race condition in the X11
+      GetWindowProperty call during XDND drops. Other platforms are
+      unaffected, since the fix only touches the X11/XDND backend.
+
+0.6.1
+    - Updated TkDND binaries to 2.10.1 for linux-x64(-tcl9), linux-arm64(-tcl9),
+      win-x64(-tcl9), win-x86(-tcl9), win-arm64, and osx-arm64. This brings in
+      TkDND's Tcl 9 compatibility work plus fixes for: file drops being
+      ignored by GTK3 apps, a BadWindow crash on X11 drops, a Windows
+      long-path truncation bug, an X11 pointer-grab break on virtual desktop
+      switches, and intermittent drop failures on Wayland/XWayland.
+    - Split osx-arm64 into a real Tcl 8.6 build and a new osx-arm64-tcl9
+      folder. Previously osx-arm64 only ever shipped a Tcl 9-linked binary
+      (TkDND's macOS CI had no Tcl 8.6 build available), so Tcl 8.6 Python
+      installs on Apple Silicon silently got an incompatible library. Now
+      osx-arm64 is genuinely Tcl 8.6, and Tcl 9 runtimes fall back to the new
+      osx-arm64-tcl9 folder as intended.
+    - win-arm64 remains Tcl 9-linked (TkDND has no Tcl 8.6 Windows ARM64
+      build), and osx-x64 remains on its old 2.9.4 binary (no macOS x64
+      build exists in TkDND's CI at all) -- both unchanged from 0.6.0 aside
+      from win-arm64 picking up the 2.10.1 Tcl 9 refresh.
+
+0.6.0
+    - Updated TkDND binaries from 2.9.x to 2.10.0 across all platforms
+    - Added Tcl 9 binaries for Linux x64, Linux arm64, Windows x64, and Windows x86
+    - TkinterDnD.py now detects Tcl major version at runtime and loads the appropriate binary
+
+0.5.0
+    - Added required() as an explicit functionality
+    - Added doc strings and information to the readme regarding this functionality and how to use it in a practical way.
+
+0.4.4.1
+    - Fixed issue where wrong binaries were placed in the Win x64 folder: the binaries were found to be the x86 binaries. This was corrected.
+
+0.4.4
+    - Merged pull request to add 2.9.5. TKDND binaries for MacOS-ARM
+
+0.4.3
+    - Improved architecture detection thanks to @rokm
+
+0.4.2
+    - Fixed an error in hook file due to the omission of a comma. I didn't do enough testing across systems.
+
+0.4.1
+    - Fixed error in hook file which failed to account for new architechures. 
+
+0.4.0
+    - Removed support for Tix. Tix was depreciated in python3.6 and will be removed in python3.13
+    - Updated most tkdnd binaries from 2.9.2 to 2.9.4. ARM binaries are on 2.9.3 and need to be rebuilt (a problem I don't yet have a solution for)
+    - Updated hook.py to only include files for the appropriate platform.
+
+0.3.1
+    - Updates to readme
+
+0.3.0
+    - Original fork 
